@@ -1,76 +1,106 @@
-# Voice-ID Registry API
+# Voice-ID Registry API v2.0 - Real ML Models
 
-Voice identity protection, licensing, and monetization platform.
+Production API with real machine learning models for voice identity protection.
 
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/voiceid)
+## 🧠 ML Models Included
 
-## 🚀 Quick Deploy
+### Voice Embedding (256-dimensional)
+- Mel-frequency spectral analysis
+- Delta and delta-delta features
+- L2 normalized vectors
+- Cosine similarity matching
 
-### Deploy to Railway (Recommended)
+### Anti-Spoof Detection
+- Spectral flatness analysis
+- Temporal variance detection
+- High-frequency content ratio
+- Multi-factor authenticity scoring
 
-1. Fork this repository
-2. Go to [railway.app](https://railway.app)
-3. Click "New Project" → "Deploy from GitHub repo"
-4. Select this repository
-5. Railway auto-detects and deploys!
+### Audio Watermarking
+- Spread-spectrum frequency domain embedding
+- 8 frequency subbands
+- 64-bit watermark payload
+- Robust to moderate compression/noise
 
-Your API will be live at: `https://your-app.up.railway.app`
+### Voice Matching
+- Cosine similarity computation
+- Configurable matching threshold (default: 0.75)
+- Confidence scoring
 
-### Custom Domain
+## 📦 Files
 
-1. In Railway dashboard, go to your project
-2. Click on your service → Settings → Domains
-3. Add your custom domain (e.g., `api.voicevault.net`)
-4. Add the CNAME record to your DNS
+```
+├── main.py           # FastAPI application
+├── ml_module.py      # ML implementations
+├── requirements.txt  # Python dependencies
+├── Procfile         # Railway deployment
+├── railway.json     # Railway config
+├── runtime.txt      # Python version
+└── .gitignore       # Git ignore rules
+```
 
-## 📚 API Documentation
+## 🚀 Deployment to Railway
 
-Once deployed, access the interactive docs:
+### Option 1: Replace existing deployment
+1. Delete all files in your `voiceid-api` GitHub repo
+2. Upload these new files
+3. Push to GitHub
+4. Railway auto-deploys
 
-- **Swagger UI**: `https://your-domain.com/docs`
-- **ReDoc**: `https://your-domain.com/redoc`
+### Option 2: Fresh deployment
+1. Create new GitHub repo
+2. Upload all files
+3. Connect to Railway
+4. Deploy
 
-## 🔧 Endpoints Overview
+## 🔌 API Endpoints
 
-### Users
-- `POST /api/v1/users` - Create user (creator/platform)
-- `GET /api/v1/users/{id}` - Get user details
+### Health & Info
+- `GET /` - API info
+- `GET /health` - Health check
+- `GET /stats` - Usage statistics
+- `GET /docs` - Swagger UI
 
-### Enrollment
+### Enrollment (Real ML)
 - `POST /api/v1/enrollment/sessions` - Start enrollment
-- `POST /api/v1/enrollment/sessions/{id}/samples` - Submit voice sample
+- `POST /api/v1/enrollment/sessions/{id}/samples` - Submit audio sample
 - `POST /api/v1/enrollment/sessions/{id}/complete` - Complete enrollment
+
+### Detection (Real ML)
+- `POST /api/v1/detection/analyze` - Analyze audio for matches/watermarks
+- `POST /api/v1/detection/compare` - Compare two audio files
+- `POST /api/v1/detection/evidence` - Generate evidence bundle
 
 ### Synthesis
 - `POST /api/v1/synthesis/licenses` - Create license
-- `POST /api/v1/synthesis/synthesize` - Generate watermarked audio
+- `POST /api/v1/synthesis/tokens` - Generate synthesis token
+- `POST /api/v1/synthesis/watermark` - Apply watermark to audio
 
-### Detection
-- `POST /api/v1/detection/analyze` - Analyze audio
-- `POST /api/v1/detection/evidence` - Generate evidence bundle
+### ML Info
+- `GET /api/v1/ml/info` - ML model specifications
+- `POST /api/v1/ml/extract-embedding` - Extract embedding (testing)
 
-### Demo
-- `POST /api/v1/demo/seed` - Seed demo data
-- `DELETE /api/v1/demo/reset` - Reset demo data
+## 📋 Requirements
 
-## 🏃 Local Development
+- Python 3.11+
+- NumPy
+- FastAPI
+- Uvicorn
+
+## 🧪 Testing
 
 ```bash
-# Install dependencies
-pip install -r requirements.txt
+# Test ML module
+python -c "from ml_module import *; print('ML module loaded!')"
 
-# Run server
-uvicorn main:app --reload
-
-# Open docs
-open http://localhost:8000/docs
+# Run locally
+uvicorn main:app --reload --port 8000
 ```
 
-## 📄 License
+## 📝 Version History
 
-Proprietary - Gooverio Labs © 2025
+- **v2.0.0** - Real ML models (current)
+- **v1.0.0** - Simulated demo mode
 
-## 📧 Contact
-
-- Website: [voicevault.net](https://voicevault.net)
-- Email: contact@gooveriolabs.com
+---
+© 2025 Gooverio Labs | Patent Pending

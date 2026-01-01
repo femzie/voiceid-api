@@ -34,30 +34,184 @@ from ml_module import (
 # APP SETUP
 # ============================================================================
 
+# Custom Swagger UI with VoiceVault branding
+CUSTOM_SWAGGER_UI_HTML = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>VoiceVault API Documentation</title>
+    <link rel="icon" type="image/png" href="https://voicevault.net/favicon.png"/>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css">
+    <style>
+        body { margin: 0; padding: 0; }
+        .swagger-ui .topbar { 
+            background: linear-gradient(135deg, #1B365D 0%, #2a4a7a 100%); 
+            padding: 12px 0;
+        }
+        .swagger-ui .topbar .wrapper { max-width: 1460px; }
+        .swagger-ui .topbar-wrapper { display: flex; align-items: center; }
+        .swagger-ui .topbar-wrapper .link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        .swagger-ui .topbar-wrapper .link span { 
+            font-size: 1.25rem; 
+            font-weight: 700; 
+            color: white;
+        }
+        .swagger-ui .topbar-wrapper .link::before {
+            content: '';
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" stroke="white" stroke-width="2"><circle cx="16" cy="16" r="14"/><path d="M16 8v16M12 12v8M20 12v8M8 14v4M24 14v4" stroke-linecap="round"/></svg>') no-repeat center;
+            background-size: contain;
+        }
+        .swagger-ui .topbar-wrapper img { display: none; }
+        .swagger-ui .info .title { color: #1B365D; }
+        .swagger-ui .info a { color: #F4B942; }
+        .swagger-ui .opblock.opblock-post { border-color: #49cc90; background: rgba(73, 204, 144, 0.1); }
+        .swagger-ui .opblock.opblock-get { border-color: #61affe; background: rgba(97, 175, 254, 0.1); }
+        .swagger-ui .opblock.opblock-delete { border-color: #f93e3e; background: rgba(249, 62, 62, 0.1); }
+        .swagger-ui .opblock.opblock-patch { border-color: #50e3c2; background: rgba(80, 227, 194, 0.1); }
+        .swagger-ui .btn.execute { background: #1B365D; border-color: #1B365D; }
+        .swagger-ui .btn.execute:hover { background: #2a4a7a; }
+        .swagger-ui section.models { border-color: #1B365D; }
+        .swagger-ui section.models h4 { color: #1B365D; }
+        .custom-header {
+            background: #1B365D;
+            color: white;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .custom-header a { color: #F4B942; text-decoration: none; margin-left: 24px; font-size: 0.9rem; }
+        .custom-header a:hover { text-decoration: underline; }
+        .custom-header .brand { display: flex; align-items: center; gap: 12px; }
+        .custom-header .brand svg { width: 28px; height: 28px; }
+        .custom-header .brand span { font-weight: 700; font-size: 1.1rem; }
+        .custom-header .brand small { opacity: 0.7; font-size: 0.75rem; display: block; }
+    </style>
+</head>
+<body>
+    <div class="custom-header">
+        <div class="brand">
+            <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="16" cy="16" r="14"/>
+                <path d="M16 8v16M12 12v8M20 12v8M8 14v4M24 14v4" stroke-linecap="round"/>
+            </svg>
+            <div>
+                <span>VoiceVault API</span>
+                <small>A Gooverio Labs Product</small>
+            </div>
+        </div>
+        <nav>
+            <a href="https://voicevault.net">Website</a>
+            <a href="https://voicevault.net/demo">Live Demo</a>
+            <a href="https://voicevault.net/pricing">Pricing</a>
+            <a href="https://voicevault.net/contact">Contact</a>
+        </nav>
+    </div>
+    <div id="swagger-ui"></div>
+    <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+    <script>
+        window.onload = function() {
+            SwaggerUIBundle({
+                url: "/openapi.json",
+                dom_id: '#swagger-ui',
+                deepLinking: true,
+                presets: [SwaggerUIBundle.presets.apis, SwaggerUIBundle.SwaggerUIStandalonePreset],
+                layout: "BaseLayout"
+            });
+        };
+    </script>
+</body>
+</html>
+"""
+
+# Docs access control - set to True to require password
+DOCS_REQUIRE_AUTH = os.environ.get("DOCS_REQUIRE_AUTH", "false").lower() == "true"
+DOCS_PASSWORD = os.environ.get("DOCS_PASSWORD", "voicevault-api-2025")
+
+from fastapi.responses import HTMLResponse
+
 app = FastAPI(
-    title="Voice-ID Registry API",
+    title="VoiceVault API",
     description="""
 ## Voice Identity Protection, Licensing & Monetization Platform
 
-Voice-ID Registry provides comprehensive infrastructure for:
+VoiceVault provides comprehensive infrastructure for:
 - **Secure Enrollment**: Register authentic voices with anti-spoof verification
-- **Licensed Synthesis**: Issue tokens and embed watermarks for authorized use
+- **Licensed Synthesis**: Issue tokens and embed watermarks for authorized use  
 - **Real-Time Detection**: Identify voice matches and extract watermarks (<300ms)
 - **Compliance & Monetization**: Automated payouts and evidence generation
 
 ### Production ML Models
-This instance is running with **real ML models**:
+This API runs with **real ML models**:
 - 256-dimensional voice embeddings using spectral analysis
 - Multi-band spectral anti-spoof detection
 - 8-subband spread-spectrum audio watermarking
 - Cosine similarity voice matching
 
+### Links
+- [VoiceVault Website](https://voicevault.net)
+- [Live Demo](https://voicevault.net/demo)
+- [Pricing](https://voicevault.net/pricing)
+
 © 2025 Gooverio Labs | Patent Pending
     """,
-    version="2.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc"
+    version="2.1.0",
+    docs_url=None,  # Disable default docs, we'll serve custom
+    redoc_url="/redoc",
+    contact={
+        "name": "VoiceVault Support",
+        "url": "https://voicevault.net/contact",
+        "email": "api@voicevault.net"
+    },
+    license_info={
+        "name": "Proprietary",
+        "url": "https://voicevault.net/terms"
+    }
 )
+
+@app.get("/docs", include_in_schema=False)
+async def custom_swagger_ui(password: str = Query(None)):
+    """Serve branded Swagger UI docs"""
+    if DOCS_REQUIRE_AUTH:
+        if password != DOCS_PASSWORD:
+            return HTMLResponse(
+                content="""
+                <html>
+                <head><title>API Docs - Authentication Required</title>
+                <style>
+                    body { font-family: -apple-system, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #f5f5f5; }
+                    .card { background: white; padding: 48px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; max-width: 400px; }
+                    h1 { color: #1B365D; margin-bottom: 8px; }
+                    p { color: #666; margin-bottom: 24px; }
+                    input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; margin-bottom: 16px; box-sizing: border-box; }
+                    button { width: 100%; padding: 12px; background: #1B365D; color: white; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; }
+                    button:hover { background: #2a4a7a; }
+                </style>
+                </head>
+                <body>
+                    <div class="card">
+                        <h1>🔐 API Documentation</h1>
+                        <p>Enter password to access VoiceVault API docs</p>
+                        <form method="GET">
+                            <input type="password" name="password" placeholder="Enter password" required>
+                            <button type="submit">Access Docs</button>
+                        </form>
+                    </div>
+                </body>
+                </html>
+                """,
+                status_code=200
+            )
+    return HTMLResponse(content=CUSTOM_SWAGGER_UI_HTML)
 
 app.add_middleware(
     CORSMiddleware,
@@ -82,7 +236,11 @@ db = {
     "evidence_bundles": {},
     "payouts": {},
     "disputes": {},
+    "waitlist": {},  # Waitlist signups
 }
+
+# Admin password (in production, use environment variable)
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "voicevault2025!")
 
 # ============================================================================
 # ENUMS & MODELS
@@ -918,6 +1076,261 @@ async def extract_embedding(audio: UploadFile = File(...)):
         "processing_time_ms": processing_time,
         "embedding_preview": embedding.embedding[:10].tolist()  # First 10 dims
     }
+
+# ============================================================================
+# WAITLIST & ADMIN ENDPOINTS
+# ============================================================================
+
+class WaitlistSignup(BaseModel):
+    first_name: str = Field(..., min_length=1, max_length=100)
+    last_name: str = Field(..., min_length=1, max_length=100)
+    email: str = Field(..., min_length=5, max_length=255)
+    creator_type: str = Field(..., min_length=1)
+    audience_size: Optional[str] = None
+    plan: str = Field(default="free")
+    social_link: Optional[str] = None
+    source: Optional[str] = "website"
+
+class WaitlistResponse(BaseModel):
+    id: str
+    message: str
+    position: int
+
+class WaitlistEntry(BaseModel):
+    id: str
+    first_name: str
+    last_name: str
+    email: str
+    creator_type: str
+    audience_size: Optional[str]
+    plan: str
+    social_link: Optional[str]
+    source: str
+    status: str
+    created_at: str
+    notes: Optional[str]
+
+@app.post("/api/v1/waitlist/signup", response_model=WaitlistResponse, tags=["Waitlist"])
+async def waitlist_signup(signup: WaitlistSignup):
+    """
+    Sign up for the VoiceVault creator waitlist.
+    
+    This endpoint is public and allows creators to join the waitlist.
+    """
+    # Check for duplicate email
+    for entry in db["waitlist"].values():
+        if entry["email"].lower() == signup.email.lower():
+            raise HTTPException(
+                status_code=400,
+                detail="This email is already on the waitlist. We'll be in touch soon!"
+            )
+    
+    # Create entry
+    entry_id = f"wl_{uuid.uuid4().hex[:12]}"
+    
+    entry = {
+        "id": entry_id,
+        "first_name": signup.first_name,
+        "last_name": signup.last_name,
+        "email": signup.email.lower(),
+        "creator_type": signup.creator_type,
+        "audience_size": signup.audience_size,
+        "plan": signup.plan,
+        "social_link": signup.social_link,
+        "source": signup.source,
+        "status": "pending",
+        "created_at": datetime.utcnow().isoformat(),
+        "notes": None
+    }
+    
+    db["waitlist"][entry_id] = entry
+    
+    position = len(db["waitlist"])
+    
+    return WaitlistResponse(
+        id=entry_id,
+        message=f"Welcome to VoiceVault, {signup.first_name}! You're #{position} on the waitlist.",
+        position=position
+    )
+
+def verify_admin(password: str = Query(..., description="Admin password")):
+    """Verify admin password"""
+    if password != ADMIN_PASSWORD:
+        raise HTTPException(status_code=401, detail="Invalid admin password")
+    return True
+
+@app.get("/api/v1/admin/waitlist", tags=["Admin"])
+async def get_waitlist(
+    password: str = Query(..., description="Admin password"),
+    status_filter: Optional[str] = Query(None, description="Filter by status"),
+    plan_filter: Optional[str] = Query(None, description="Filter by plan"),
+    limit: int = Query(100, ge=1, le=500),
+    offset: int = Query(0, ge=0)
+):
+    """
+    Get all waitlist signups (admin only).
+    
+    Requires admin password for access.
+    """
+    verify_admin(password)
+    
+    # Get all entries
+    entries = list(db["waitlist"].values())
+    
+    # Apply filters
+    if status_filter:
+        entries = [e for e in entries if e["status"] == status_filter]
+    if plan_filter:
+        entries = [e for e in entries if e["plan"] == plan_filter]
+    
+    # Sort by created_at descending (newest first)
+    entries.sort(key=lambda x: x["created_at"], reverse=True)
+    
+    # Paginate
+    total = len(entries)
+    entries = entries[offset:offset + limit]
+    
+    return {
+        "total": total,
+        "limit": limit,
+        "offset": offset,
+        "entries": entries
+    }
+
+@app.get("/api/v1/admin/waitlist/{entry_id}", tags=["Admin"])
+async def get_waitlist_entry(
+    entry_id: str,
+    password: str = Query(..., description="Admin password")
+):
+    """Get a specific waitlist entry (admin only)."""
+    verify_admin(password)
+    
+    if entry_id not in db["waitlist"]:
+        raise HTTPException(status_code=404, detail="Entry not found")
+    
+    return db["waitlist"][entry_id]
+
+@app.patch("/api/v1/admin/waitlist/{entry_id}", tags=["Admin"])
+async def update_waitlist_entry(
+    entry_id: str,
+    password: str = Query(..., description="Admin password"),
+    status: Optional[str] = Query(None),
+    notes: Optional[str] = Query(None)
+):
+    """Update a waitlist entry status or notes (admin only)."""
+    verify_admin(password)
+    
+    if entry_id not in db["waitlist"]:
+        raise HTTPException(status_code=404, detail="Entry not found")
+    
+    entry = db["waitlist"][entry_id]
+    
+    if status:
+        entry["status"] = status
+    if notes is not None:
+        entry["notes"] = notes
+    
+    entry["updated_at"] = datetime.utcnow().isoformat()
+    
+    return entry
+
+@app.delete("/api/v1/admin/waitlist/{entry_id}", tags=["Admin"])
+async def delete_waitlist_entry(
+    entry_id: str,
+    password: str = Query(..., description="Admin password")
+):
+    """Delete a waitlist entry (admin only)."""
+    verify_admin(password)
+    
+    if entry_id not in db["waitlist"]:
+        raise HTTPException(status_code=404, detail="Entry not found")
+    
+    del db["waitlist"][entry_id]
+    
+    return {"message": "Entry deleted", "id": entry_id}
+
+@app.get("/api/v1/admin/stats", tags=["Admin"])
+async def get_admin_stats(
+    password: str = Query(..., description="Admin password")
+):
+    """
+    Get platform statistics (admin only).
+    
+    Returns counts and breakdowns of waitlist, users, voices, etc.
+    """
+    verify_admin(password)
+    
+    waitlist_entries = list(db["waitlist"].values())
+    
+    # Waitlist stats
+    plan_breakdown = {}
+    type_breakdown = {}
+    status_breakdown = {}
+    audience_breakdown = {}
+    
+    for entry in waitlist_entries:
+        plan = entry.get("plan", "free")
+        plan_breakdown[plan] = plan_breakdown.get(plan, 0) + 1
+        
+        ctype = entry.get("creator_type", "unknown")
+        type_breakdown[ctype] = type_breakdown.get(ctype, 0) + 1
+        
+        status = entry.get("status", "pending")
+        status_breakdown[status] = status_breakdown.get(status, 0) + 1
+        
+        audience = entry.get("audience_size") or "not_specified"
+        audience_breakdown[audience] = audience_breakdown.get(audience, 0) + 1
+    
+    return {
+        "waitlist": {
+            "total": len(waitlist_entries),
+            "by_plan": plan_breakdown,
+            "by_creator_type": type_breakdown,
+            "by_status": status_breakdown,
+            "by_audience_size": audience_breakdown
+        },
+        "platform": {
+            "users": len(db["users"]),
+            "voices_enrolled": len(db["voices"]),
+            "licenses_issued": len(db["licenses"]),
+            "detection_requests": len(db["detection_results"]),
+            "evidence_bundles": len(db["evidence_bundles"])
+        },
+        "generated_at": datetime.utcnow().isoformat()
+    }
+
+@app.get("/api/v1/admin/export/waitlist", tags=["Admin"])
+async def export_waitlist_csv(
+    password: str = Query(..., description="Admin password")
+):
+    """Export waitlist as CSV (admin only)."""
+    verify_admin(password)
+    
+    entries = list(db["waitlist"].values())
+    entries.sort(key=lambda x: x["created_at"], reverse=True)
+    
+    # Build CSV
+    headers = ["id", "first_name", "last_name", "email", "creator_type", "audience_size", "plan", "social_link", "source", "status", "created_at", "notes"]
+    lines = [",".join(headers)]
+    
+    for entry in entries:
+        row = []
+        for h in headers:
+            val = entry.get(h) or ""
+            # Escape commas and quotes
+            val = str(val).replace('"', '""')
+            if "," in val or '"' in val or "\n" in val:
+                val = f'"{val}"'
+            row.append(val)
+        lines.append(",".join(row))
+    
+    csv_content = "\n".join(lines)
+    
+    return Response(
+        content=csv_content,
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=voicevault_waitlist.csv"}
+    )
 
 # ============================================================================
 # RUN
